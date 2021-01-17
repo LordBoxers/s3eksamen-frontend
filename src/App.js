@@ -31,9 +31,17 @@ function App() {
                 <Route exact path="/login">
                     <DoLogin loggedIn={isLoggedIn} setLoggedIn={setLoggedIn} goHome={goHome} />
                 </Route>
-                <Route exact path="/externData">
-                    <ExternData />
+                <Route exact path="/allSportTeams">
+                    <SportTeams />
                 </Route>
+                <Route exact path="/allSports">
+                    <Sports />
+                </Route>
+                {isLoggedIn &&
+                    <Route exact path="/adminpage">
+                        <Adminpage />
+                    </Route>
+                }
                 <Route>
                     <NoMatch />
                 </Route>
@@ -50,8 +58,16 @@ function Header({ isLoggedIn, loginMsg }) {
                 <NavLink exact activeClassName="active" to="/">Home</NavLink>
             </li>
             <li>
-                <NavLink activeClassName="active" to="/externData">Extern API</NavLink>
+                <NavLink activeClassName="active" to="/allSportTeams">Sport Teams</NavLink>
             </li>
+            <li>
+                <NavLink activeClassName="active" to="/allSports">Sports</NavLink>
+            </li>
+            {isLoggedIn && (
+                <li>
+                    <NavLink activeClassName="active" to="/adminpage">admin</NavLink>
+                </li>
+            )}
             <li>
                 <NavLink activeClassName="active" to="/login">
                     {loginMsg}</NavLink>
@@ -79,15 +95,14 @@ function Home() {
     )
 }
 
-function ExternData() {
+
+function SportTeams() {
     const [data, setData] = useState(null);
     const { strategy } = useParams();
 
-    //const foundData = () => loginFacade.fetchExternData().then(res => setData(res));
-
     useEffect(() => {
         setData(null);
-        loginFacade.fetchExternData().then(res => setData(res))
+        loginFacade.fetchSportTeams().then(res => setData(res))
             .catch(err => {
                 if (err.status) {
                     console.log(err.message);
@@ -98,28 +113,29 @@ function ExternData() {
 
     const toShow = data ? (
         <div>
-            <h3>Todo if bored:</h3>
-            <p>Activity: {data.activity}</p>
-            <p>Type: {data.type}</p>
-            <p>Price {data.price}</p>
-            <p>Reference: https://www.boredapi.com/api/activity</p>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Team Name</th>
+                        <th scope="col">Price per Year</th>
+                        <th scope="col">Minimum age</th>
+                        <th scope="col">Maximum age</th>
+                    </tr>
+                </thead>
+                <tr>
+                    {data.map((x) => (
+                        <tbody key={x.teamName}>
 
-            <h3>Random Food picture</h3>
-            <p><img src={data.foodImage}></img></p>
-            <p>Reference: https://foodish-api.herokuapp.com/api</p>
+                            <td>{x.teamName}</td>
+                            <td>{x.pricePerYear}</td>
+                            <td>{x.minAge}</td>
+                            <td>{x.maxAge}</td>
+                        </tbody>
+                    ))}
+                </tr>
 
-            <h3>Random Dog picture</h3>
-            <p><img src={data.dogPicture}></img></p>
-            <p>Reference: https://dog.ceo/api/breeds/image/random</p>
-
-            <h3>Kanye Says</h3>
-            <em>"{data.kanyeSays}"</em>
-            <p>Reference: https://api.kanye.rest/</p>
-
-            <h3>{data.author} Says</h3>
-            <em>"{data.programmerQuote}"</em>
-            <p>Reference: https://programming-quotes-api.herokuapp.com/quotes/random</p>
-
+            </table>
         </div>
     ) : "Loading..."
 
@@ -127,6 +143,103 @@ function ExternData() {
         <div>
             <h2>data from server</h2>
             {toShow}
+        </div>
+    )
+}
+function Sports() {
+    const [data, setData] = useState(null);
+    const { strategy } = useParams();
+
+    useEffect(() => {
+        setData(null);
+        loginFacade.fetchSports().then(res => setData(res))
+            .catch(err => {
+                if (err.status) {
+                    console.log(err.message);
+                }
+            });
+
+    }, [])
+
+    const toShow = data ? (
+        <div>
+            {data.map((x) => (
+                <tbody key={x.name}>
+
+                    <td>{x.name}</td>
+                    <td>{x.description}</td>
+                </tbody>
+            ))}
+        </div>
+    ) : "Loading..."
+
+    return (
+        <div>
+            <h2>data from server</h2>
+            {toShow}
+        </div>
+    )
+}
+function Adminpage() {
+    const init = {
+        name: "",
+        description: "",
+    };
+    const [sportinfo, setSportinfo] = useState(init);
+    const [sportTeaminfo, setSportTeaminfo] = useState(init);
+    const [msg, setMsg] =useState("");
+
+    function onSubmit(event) {
+        event.preventDefault();
+        loginFacade.addSport(sportinfo.name, sportinfo.description).catch(err => {
+            if (err.status) {
+                console.log(err.message);
+            }
+        });
+        if (sportinfo.name) {
+            setMsg("sport was added")
+        } else { setMsg("an error have occured")};
+    }
+    function onSubmit2(event) {
+        event.preventDefault();
+        loginFacade.addSportTeam(sportTeaminfo.teamName, sportTeaminfo.pricePerYear, sportTeaminfo.minAge, sportTeaminfo.maxAge).catch(err => {
+            if (err.status) {
+                console.log(err.message);
+            }
+        });
+        if (sportTeaminfo.teamName) {
+            setMsg("sport team was added")
+        } else { setMsg("an error have occured")};
+    }
+
+    const onChange = (evt) => {
+        setSportinfo({
+            ...sportinfo,
+            [evt.target.id]: evt.target.value,
+        });
+    };
+    const onChange2 = (evt) => {
+        setSportTeaminfo({
+            ...sportTeaminfo,
+            [evt.target.id]: evt.target.value,
+        });
+    };
+    return (
+        <div>
+            <form onChange={onChange}>
+                <input placeholder="name" id="name" />
+                <input placeholder="description" id="description" />
+                <button onClick={onSubmit}>Add sport</button>
+            </form>
+            <p>{msg}</p>
+            
+            <form onChange={onChange2}>
+                <input placeholder="teamName" id="teamName" />
+                <input placeholder="pricePerYear" id="pricePerYear" />
+                <input placeholder="minAge" id="minAge" />
+                <input placeholder="maxAge" id="maxAge" />
+                <button onClick={onSubmit2}>Add Sport Team</button>
+            </form>
         </div>
     )
 }

@@ -64,11 +64,38 @@ function apiFacade() { /* Insert utility-methods from a latter step (d) here (RE
         }
         return opts;
     }
-
-    const fetchExternData = () => {
+    const fetchSportTeams = () => {
         const options = makeOptions("GET", true); // True add's the token
-        return fetch(URL + "/api/info/extern", options).then(handleHttpErrors);
+        return fetch(URL + "/api/sport/allSportTeams", options).then(handleHttpErrors);
     }
+    const fetchSports = () => {
+        const options = makeOptions("GET", true); // True add's the token
+        return fetch(URL + "/api/sport/allSports", options).then(handleHttpErrors);
+    }
+    const addSport = (name, description) => {
+        const options = makeOptions("POST", true, {
+          name: name,
+          description: description,
+        });
+        return fetch(URL + "/api/sport/addSport", options)
+          .then(handleHttpErrors)
+          .then((res) => {
+            setToken(res.token);
+          });
+      };
+    const addSportTeam = (teamName, pricePerYear, minAge, maxAge) => {
+        const options = makeOptions("POST", true, {
+            teamName: teamName,
+            pricePerYear: pricePerYear,
+            minAge: minAge,
+            maxAge: maxAge
+          });
+          return fetch(URL + "/api/sport/addSportTeam", options)
+            .then(handleHttpErrors)
+            .then((res) => {
+              setToken(res.token);
+            });
+    };
 
 
     return {
@@ -79,7 +106,10 @@ function apiFacade() { /* Insert utility-methods from a latter step (d) here (RE
         login,
         logout,
         fetchData,
-        fetchExternData
+        fetchSportTeams,
+        fetchSports,
+        addSport,
+        addSportTeam
     }
 }
 const loginFacade = apiFacade();

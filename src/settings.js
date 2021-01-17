@@ -1,3 +1,3 @@
-const URL = "https://svendbentsballonshow.dk/tomcat/ca3backend";
+const URL = "https://rystrouteren.dk/tomcat/3semEksamenbackend";
 
 export default URL;
