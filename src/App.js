@@ -83,13 +83,10 @@ function Home() {
     return (
         <div>
             <h2>Home</h2>
-            <h3>How to use:</h3>
             <ul>
-                <li>Login as User or Admin using username and password made in backend process</li>
-                <li>User and Admin use different endpoints for login</li>
-                <li><b>Extern API</b> use five different extern REST API endpoints through backend.</li>
-                <li>Make sure to have backend running locally or delpoyet, and adjust link(s) in <b>settings.js</b></li>
-                <li>Link to backend startcode: <a href="https://github.com/sslhansen/3semCA3backend">Backend Startcode</a> </li>
+                <li>Michael Ibsen</li>
+                <li>CPH business 3sem eksamen</li>
+                <li>cph-mi93</li>
             </ul>
         </div>
     )
